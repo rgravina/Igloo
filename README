@@ -1,0 +1,26 @@
+###########
+   Igloo  
+###########
+
+Igloo is a simple, lightweight, content management system built with the 
+excellent Divmod Nevow and Axiom frameworks <http://divmod.org/>.
+
+Igloo features:
+
+	* User management - Igloo provides user and role management, and a 
+	simple permissions system for content types.
+
+	* Content management - Create content types as objects which are 
+	stored in an Axiom database. Easily create administration screens for 
+	these content types so your users can manage their own website content.
+	Specify a workflow process that content types should go through.
+
+	* Site components - Developers can create extensions to extend the 
+	functionality in Igloo - blogs, polls, media management etc. which 
+	can be easily reused between sites. Igloo comes with a few built-in:
+		
+		* RSS: Provide RSS feeds for your site content
+		* Tags:	Tag your content, and use this in interesting ways.
+		* News: Provide news announcements and an RSS feed
+		* Blog: Add a blog to your site, complete with comments 
+		* Contact: Provide contact details for your site
