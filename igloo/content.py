@@ -17,6 +17,6 @@ class WebResource(Item):
 
     installedOn = reference()
     def installOn(self, other):
-        assert self.installedOn is None, 'cannot install on more than Item'
+        assert self.installedOn is None, 'cannot instal on more than one object'
         self.installedOn = other
         other.powerUp(self, IWebResource)

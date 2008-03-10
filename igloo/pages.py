@@ -1,7 +1,7 @@
 from nevow import inevow, rend, tags as T, loaders, static, guard, accessors
 from content import Site
 from iigloo import IStore
-from authentication import createAdmin
+import authentication
 
 class IglooPage(rend.Page):
     addSlash = True
@@ -9,17 +9,21 @@ class IglooPage(rend.Page):
     child_styles = static.File('styles')
     child_images = static.File('images')
     child_javascript = static.File('javascript')
-    child_admin = createAdmin()
     
     @staticmethod
     def loadTemplate(name):
         return loaders.xmlfile(name, templateDir=IglooPage.templatesDir)
 
-    def childFactory(self, ctx, name):
+    def childFactory(self, context, name):
+        store = IStore(context)
+        if name == "admin":
+            if not hasattr(self, "child_admin"):
+                self.child_admin = authentication.createAdmin(store)
+                return self.child_admin
         #need this because we can't have dots in attribute names, so can't use favourites.ico
         if name == "favicon.ico":
             return static.File('images/favicon.ico')
-
+        
     def render_title(self, context, data):
         store = IStore(context)
         site = store.findFirst(Site)
@@ -45,9 +49,13 @@ class AdminLoginPage(IglooPage):
     def render_menu(self, ctx, data):
         return T.ul(id="menu")[T.li[T.a(href="/")["HOME"]]]
 
+class AdminSettingsPage(IglooPage):
+    docFactory = IglooPage.loadTemplate('admin/general.html')
+
 class AdminMainPage(IglooPage):
     docFactory = IglooPage.loadTemplate('admin/main.html')
-
+    child_general = AdminSettingsPage()
+    
     def render_menu(self, ctx, data):
         return T.ul(id="menu")[
                      T.li[T.a(href="/admin")["ADMIN HOME"]],
