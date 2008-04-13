@@ -5,7 +5,7 @@ from axiom import dependency
 from zope.interface import implements
 
 class AdminRealm(object):
-    """Returns the admin login page for anonylmous users, or the admin main page for logged in users"""
+    """Returns the admin login page for anonymous users, or the admin main page for logged in users"""
     implements(portal.IRealm)
     def requestAvatar(self, avatarId, mind, *interfaces):
         import pages
