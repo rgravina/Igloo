@@ -15,7 +15,6 @@ class WebResource(Item):
     implements(IWebResource)
     typeName = "WebResource"
     path = text()
-
     powerupInterfaces = (IWebResource,) 
 
 class Tag(Item):

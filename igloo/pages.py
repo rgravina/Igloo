@@ -43,9 +43,27 @@ class AdminLoginPage(IglooPage):
 class AdminSettingsPage(IglooPage):
     docFactory = IglooPage.loadTemplate('admin/general.html')
 
+class AdminContentPage(IglooPage):
+    docFactory = IglooPage.loadTemplate('content.html')
+    
+    def locateChild(self, context, segments):
+        # Let parent class have a go first
+        child, remainingSegments = rend.Page.locateChild(self, context, segments)
+        if child:
+            return child, remainingSegments
+        store = IStore(context)
+        if segments:
+            #have requested some news article
+            path = segments[0]
+            article = store.findFirst(Content)
+            #now check if they have requested an operation of some kind
+            return NewsArticlePage(article), []
+        return None, []
+
 class AdminMainPage(IglooPage):
     docFactory = IglooPage.loadTemplate('admin/main.html')
     child_general = AdminSettingsPage()
+    child_content = AdminContentPage()
     
     def render_menu(self, ctx, data):
         return T.ul(id="menu")[
@@ -58,3 +76,4 @@ class AdminMainPage(IglooPage):
         ## self.original is the page's main data -- the object that was passed in to the constructor, and
         ## the object that is initially passed as the 'data' parameter to renderers
         print "%s logged out!" % self.original
+

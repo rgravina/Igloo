@@ -1,0 +1,77 @@
+========================================================
+Tagging your content in Igloo
+========================================================
+
+Basic Usage
+------------------------
+
+We need to create an Axiom Item to associate tags with, so first we create a 
+store.
+ 
+    >>> from axiom.store import Store
+	>>> from axiom.item import Item
+    >>> store = Store()
+
+Now, let's create a class to represent an article and make it tagable using an 
+Axiom powerup:
+
+	>>> from axiom.attributes import text, reference
+	>>> from igloo.content import TaggedItem
+	>>> from axiom import dependency
+	>>> class Article(Item):
+	... 	"""A News Article"""
+	... 	title = text()
+	... 	author = text()
+	... 	text = text()
+	... 	tagInfo = reference()	
+	... 	def __init__(self, **kw):
+	... 		Item.__init__(self, **kw)
+	... 		self.tagInfo = TaggedItem(store=store)
+	... 		dependency.installOn(self.tagInfo, self)
+
+and so we can instantiate an article:
+
+	>>> articleNevow = Article(store=store, title=u"Introducing Nevow, one kickass web framework.")
+
+Great. Let's now create some tags:
+	
+	>>> from igloo.content import Tag
+	>>> _ = Tag(store=store, name=u"web")
+    >>> _ = Tag(store=store, name=u"framework")
+    >>> _ = Tag(store=store, name=u"python")
+
+and associate them with the article:
+
+	>>> from igloo.iigloo import ITaggedItem
+    >>> ITaggedItem(articleNevow).addTag(u"web")
+    >>> ITaggedItem(articleNevow).addTag(u"framework")
+    >>> ITaggedItem(articleNevow).addTag(u"python")
+
+The list of tags on an article are returned to you in sorted order:
+	
+	>>> list(ITaggedItem(articleNevow).tags())
+	[framework, python, web]
+
+Let's add another article, about Igloo:
+
+	>>> articleIgloo = Article(store=store, title=u"Introducing Igloo, one kickass CMS framework.")
+    >>> ITaggedItem(articleIgloo).addTag(u"framework")
+
+and for something completely different, about Plone:
+
+    >>> tagBloat = Tag(store=store, name=u"bloatware")
+	>>> articlePlone = Article(store=store, title=u"Plone, a bloated CMS.")
+    >>> ITaggedItem(articlePlone).addTag(u"boatware")
+
+You can see all articles which share one or more tag with a particular article:
+
+    >>> related = ITaggedItem(articleNevow).related()
+	>>> articleIgloo in related
+	True
+	>>> articlePlone in related
+	False
+
+And of course, the article itself should not be in the list:
+
+	>>> articleNevow in related
+	False
