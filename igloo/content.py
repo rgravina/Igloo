@@ -35,7 +35,6 @@ class TagItem(Item):
 class TaggedItem(object):
     """Adds tagging functionalty to any Axiom Item"""
     implements(ITaggedItem)
-    typeName = "TaggedItem"
 
     def __init__(self, context):
         self.context = context
@@ -43,7 +42,6 @@ class TaggedItem(object):
     def addTag(self, tag):
         tagItem = self.context.store.findOrCreate(Tag, name=tag)
         self.context.store.findOrCreate(TagItem, tag=tagItem, item=self.context)
-
 
     def removeTag(self, tag):
         tagItem = self.context.store.findFirst(Tag, name=tag)
@@ -73,3 +71,4 @@ class ContentType(Item):
     implements(IContentType)
     typeName = "ContentType"
     powerupInterfaces = (IContentType,) 
+    name = text()

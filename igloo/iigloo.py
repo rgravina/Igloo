@@ -14,3 +14,4 @@ class ITaggedItem(Interface):
 
 class IContentType(Interface):
     """Tells Igloo that this is a piece of content that should be listed in the admin for users to edit"""
+    name = Attribute("""Name for the content type""")
