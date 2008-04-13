@@ -38,13 +38,13 @@ class AdminLoginPage(IglooPage):
         return ctx.tag(action=guard.LOGIN_AVATAR, method='post')
 
     def render_menu(self, ctx, data):
-        return T.ul(id="menu")[T.li[T.a(href="/")["HOME"]]]
+        return T.ul(id="menu")[T.li[T.a(href="/")["Home"]]]
 
 class AdminSettingsPage(IglooPage):
     docFactory = IglooPage.loadTemplate('admin/general.html')
 
 class AdminContentPage(IglooPage):
-    docFactory = IglooPage.loadTemplate('content.html')
+    docFactory = IglooPage.loadTemplate('admin/content.html')
     
     def locateChild(self, context, segments):
         # Let parent class have a go first
@@ -67,10 +67,10 @@ class AdminMainPage(IglooPage):
     
     def render_menu(self, ctx, data):
         return T.ul(id="menu")[
-                     T.li[T.a(href="/admin")["ADMIN HOME"]],
-                     T.li[T.a(href="/admin/general")["SITE DETAILS"]],
-                     T.li[T.a(href="/admin/users")["USER ADMINISTRATION"]],
-                     T.li[T.a(href=guard.LOGOUT_AVATAR)["LOGOUT"]]]
+                     T.li[T.a(href="/admin")["Admin Home"]],
+                     T.li[T.a(href="/admin/general")["Site Details"]],
+                     T.li[T.a(href="/admin/users")["User Administration"]],
+                     T.li[T.a(href=guard.LOGOUT_AVATAR)["Logout"]]]
 
     def logout(self):
         ## self.original is the page's main data -- the object that was passed in to the constructor, and

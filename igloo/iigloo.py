@@ -9,4 +9,8 @@ class IWebResource(Interface):
 
 class ITaggedItem(Interface):
     """Maintains a list of tags for some Item"""
-    tags = Attribute("""A list of tags associated with that item""")
+    def tags(self):
+        """Returns a sorted list of tags associated with this item"""
+
+class IContentType(Interface):
+    """Tells Igloo that this is a piece of content that should be listed in the admin for users to edit"""

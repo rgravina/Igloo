@@ -17,17 +17,11 @@ Axiom powerup:
 
 	>>> from axiom.attributes import text, reference
 	>>> from igloo.content import TaggedItem
-	>>> from axiom import dependency
 	>>> class Article(Item):
 	... 	"""A News Article"""
 	... 	title = text()
 	... 	author = text()
 	... 	text = text()
-	... 	tagInfo = reference()	
-	... 	def __init__(self, **kw):
-	... 		Item.__init__(self, **kw)
-	... 		self.tagInfo = TaggedItem(store=store)
-	... 		dependency.installOn(self.tagInfo, self)
 
 and so we can instantiate an article:
 
