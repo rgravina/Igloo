@@ -13,5 +13,20 @@ class ITaggedItem(Interface):
         """Returns a sorted list of tags associated with this item"""
 
 class IContentType(Interface):
-    """Tells Igloo that this is a piece of content that should be listed in the admin for users to edit"""
+    """Tells the admin that a particular content type"""
     name = Attribute("""Name for the content type""")
+    path = Attribute("""Path at which this content type will be listed in the admin""")
+    def form(self):
+        """Returns a edit form for this content type"""
+    def update(self):
+        """Updates this content type"""
+
+#class IContentManager(Interface):
+#    """Maintains a list of content types"""
+#    def addContentType(self, contentClass, path, name):
+#        """Adds content type"""
+#    def getContentTypes(self):
+#        """Returns list of content types"""
+#    def getContentTypeFor(self, contentClass):
+#        """Returns the content type for a particular class"""
+

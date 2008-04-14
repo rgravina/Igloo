@@ -11,12 +11,49 @@ class Site(Item):
     title = text()
     shortDescription = text()
 
+    def getContentTypes(self):
+        return self.store.query(ContentType, ContentType.site == self)
+
+
+#class ContentManager(object):
+#    """Adapts a Site so it can keep a list of content types it manages"""
+#    implements(IContentManager)
+#
+#    def __init__(self, context):
+#        self.context = context        
+#        self._contentTypes = {}
+# 
+#    def addContentType(self, contentClass, path, name):
+#        self.context.store.findOrCreate(ContentType, site=self.context, path=path, name=name)
+#        self._contentTypes.append(contentClass)
+#
+#    def getContentTypes(self):
+#        return self._contentTypes
+#
+#    def getContentTypeFor(self, contentClass):
+#        return self._contentTypes[contentClass]
+#
+#components.registerAdapter(ContentManager, Site, IContentManager)
+
+
 class WebResource(Item):
     """A web resource powerup"""
     implements(IWebResource)
     typeName = "WebResource"
     path = text()
     powerupInterfaces = (IWebResource,) 
+
+class ContentType(Item):
+    """A content type powerup"""
+    implements(IContentType)
+    typeName = "ContentType"
+    powerupInterfaces = (IContentType,) 
+    site = reference(reftype=Site)
+    name = text()
+    path = text()
+
+    def __repr__(self):
+        return unicode(self.name)
 
 class Tag(Item):
     """A tag"""
@@ -29,7 +66,7 @@ class Tag(Item):
 class TagItem(Item):
     """A link between a tag and an Item"""
     typeName = "TagItem"
-    tag = reference()
+    tag = reference(reftype=Tag)
     item = reference()
     
 class TaggedItem(object):
@@ -66,9 +103,3 @@ class TaggedItem(object):
         return items
 components.registerAdapter(TaggedItem, Item, ITaggedItem)
 
-class ContentType(Item):
-    """A content type powerup"""
-    implements(IContentType)
-    typeName = "ContentType"
-    powerupInterfaces = (IContentType,) 
-    name = text()

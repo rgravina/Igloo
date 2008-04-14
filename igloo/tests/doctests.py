@@ -1,9 +1,9 @@
 import unittest, doctest
     
 def suite():
-    suite = unittest.TestSuite()
+    suite = doctest.DocFileSuite()
 #    suite.addTest(doctest.DocFileTest('tagging.txt'))
-    suite.addTest(doctest.DocFileTest('content.txt'))
+    suite.addTest(doctest.DocFileTest('content.txt')) 
     runner = unittest.TextTestRunner()
     runner.run(suite)
         

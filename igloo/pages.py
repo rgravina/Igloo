@@ -1,5 +1,5 @@
 from nevow import inevow, rend, tags as T, loaders, static, guard, accessors
-from content import Site
+from content import Site, ContentType
 from iigloo import IStore
 
 class IglooPage(rend.Page):
@@ -53,11 +53,11 @@ class AdminContentPage(IglooPage):
             return child, remainingSegments
         store = IStore(context)
         if segments:
-            #have requested some news article
-            path = segments[0]
-            article = store.findFirst(Content)
-            #now check if they have requested an operation of some kind
-            return NewsArticlePage(article), []
+            #return the listing for a specific content type
+            typeName = segments[0]
+            contentType = store.findFirst(ContentType, ContentType.path == typeName)
+            return ContentListingPage(contentType), []
+        #return a listing of content types
         return None, []
 
 class AdminMainPage(IglooPage):
@@ -77,3 +77,10 @@ class AdminMainPage(IglooPage):
         ## the object that is initially passed as the 'data' parameter to renderers
         print "%s logged out!" % self.original
 
+    def data_content(self, context, data):
+        store = IStore(context)
+        site = store.findFirst(Site)
+        return site.getContentTypes()
+    
+    def render_content(self, context, contentType):
+        return T.a(href="/content/%s/" % contentType.path)[contentType.name]
