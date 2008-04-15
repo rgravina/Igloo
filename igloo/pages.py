@@ -2,7 +2,7 @@ from axiom.item import Item
 from axiom import dependency
 from nevow import inevow, rend, tags as T, loaders, static, guard, accessors
 from content import Site, ContentType
-from iigloo import IStore
+from iigloo import IStore, IWebResource
 
 class IglooPage(rend.Page):
     addSlash = True
@@ -55,6 +55,9 @@ class AdminSettingsPage(IglooPage):
     docFactory = IglooPage.loadTemplate('admin/general.html')
 
 
+class AdminContentEditPage(AdminPage):
+    docFactory = IglooPage.loadTemplate('admin/content-edit.html')
+
 class AdminContentListingPage(AdminPage):
     docFactory = IglooPage.loadTemplate('admin/content-list.html')
 
@@ -67,7 +70,7 @@ class AdminContentListingPage(AdminPage):
         return site.getContentForType(self.contentType)
     
     def render_item(self, context, item):
-        return context.tag[str(item)]
+        return context.tag[T.a(href="/admin/content/%s/%s/edit" % (item.path, IWebResource(item).path))[item.title]]
 
     def __init__(self, contentType):
         self.contentType = contentType
