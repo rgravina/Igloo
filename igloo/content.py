@@ -4,21 +4,25 @@ from axiom.item import Item
 from axiom.attributes import text, reference, AND
 from axiom import dependency
 from iigloo import *
+from twisted.python import log
 
 class Site(Item):
     """A website. Contains information like site title etc."""
     typeName = 'Site'
     title = text()
     shortDescription = text()
-    _contentTypes = {}
     def registerContentType(self, klass):
         ContentType(store=self.store, site=self, path=klass.path, name=klass.name)
+        log.msg("Registered content type '%s' with site '%s'" % (klass.name, self))
     def addContent(self, content):
         IContent(content).type = self.store.findFirst(ContentType, ContentType.path == content.path)
     def getContentTypes(self):
         return self.store.query(ContentType, ContentType.site == self)
     def getContentForType(self, contentType):
-        return [dependency.installedOn(content) for content in self.store.query(Content, AND(Content.type == contentType, ContentType.site == self))]
+        return [dependency.installedOn(content) for content in self.store.query(Content, AND(Content.type == contentType, ContentType.site == self)).distinct()]
+
+    def __repr__(self):
+        return self.title
 
 class WebResource(Item):
     """A web resource powerup"""

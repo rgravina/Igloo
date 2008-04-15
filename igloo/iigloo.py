@@ -13,7 +13,7 @@ class ITaggedItem(Interface):
         """Returns a sorted list of tags associated with this item"""
 
 class IContentType(Interface):
-    """A content type"""
+    """A content type. These are used to to say a particular IContent is a certain type"""
     name = Attribute("""Name for the content type""")
     path = Attribute("""Path at which this content type will be listed in the admin""")
 
