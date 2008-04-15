@@ -10,31 +10,15 @@ class Site(Item):
     typeName = 'Site'
     title = text()
     shortDescription = text()
-
+    _contentTypes = {}
+    def registerContentType(self, klass):
+        ContentType(store=self.store, site=self, path=klass.path, name=klass.name)
+    def addContent(self, content):
+        IContent(content).type = self.store.findFirst(ContentType, ContentType.path == content.path)
     def getContentTypes(self):
         return self.store.query(ContentType, ContentType.site == self)
-
-
-#class ContentManager(object):
-#    """Adapts a Site so it can keep a list of content types it manages"""
-#    implements(IContentManager)
-#
-#    def __init__(self, context):
-#        self.context = context        
-#        self._contentTypes = {}
-# 
-#    def addContentType(self, contentClass, path, name):
-#        self.context.store.findOrCreate(ContentType, site=self.context, path=path, name=name)
-#        self._contentTypes.append(contentClass)
-#
-#    def getContentTypes(self):
-#        return self._contentTypes
-#
-#    def getContentTypeFor(self, contentClass):
-#        return self._contentTypes[contentClass]
-#
-#components.registerAdapter(ContentManager, Site, IContentManager)
-
+    def getContentForType(self, contentType):
+        return [dependency.installedOn(content) for content in self.store.query(Content, AND(Content.type == contentType, ContentType.site == self))]
 
 class WebResource(Item):
     """A web resource powerup"""
@@ -44,17 +28,24 @@ class WebResource(Item):
     powerupInterfaces = (IWebResource,) 
 
 class ContentType(Item):
-    """A content type powerup"""
+    """A content type"""
     implements(IContentType)
     typeName = "ContentType"
-    powerupInterfaces = (IContentType,) 
     site = reference(reftype=Site)
-    name = text()
     path = text()
+    name = text()
 
     def __repr__(self):
-        return unicode(self.name)
+        return self.name
 
+    
+class Content(Item):
+    """A content powerup for axiom Items"""
+    implements(IContent)
+    powerupInterfaces = (IContent,) 
+    typeName = "Content"
+    type = reference(reftype=ContentType)
+        
 class Tag(Item):
     """A tag"""
     typeName = "Tag"

@@ -8,7 +8,8 @@ Basic Usage
 Any content you like which is an Axiom Item can be stored in the database, 
 however sometimes you want to expose some of these items to the Igloo admin.
 
-By creating an IContentType adapter, you can do that.
+By creating a class which implements IContentType, and installs the Content 
+powerup, you can do that.
 
 So lets start by creating a store.
  
@@ -20,22 +21,35 @@ Now, let's create a class to represent an article:
 
 	>>> from axiom.attributes import text, reference
 	>>> from axiom import dependency
-	>>> from igloo.content import ContentType
+	>>> from igloo.iigloo import IContentType
+	>>> from igloo.content import Content
+	>>> from zope.interface import implements
 	>>> class Article(Item):
 	... 	"""A News Article"""
+	... 	implements(IContentType)
+	... 	path = u"news"
+	... 	name = u"News Article"
 	... 	title = text()
 	... 	author = text()
 	... 	text = text()
-	... 	contentType = reference()
-	... 	def __init__(self, site, **kw):
+	... 	content = reference()
+	... 	def __init__(self, **kw): 
 	... 		Item.__init__(self, **kw)
-	... 		self.contentType = self.store.findOrCreate(ContentType, site=site, path=u"news", name=u"News Article")
-	... 		dependency.installOn(self.contentType, self)
+	... 		self.content = Content(store=self.store)
+	... 		dependency.installOn(self.content, self)
 
-and so we can instantiate an article:
+and register it with our Site:
 
-	>>> from igloo.content import Site
+	>>> from igloo.content import Site, ContentType
 	>>> site = Site(store=store, title=u"Tech News")
-	>>> articleNevow = Article(store=store, site=site, title=u"Introducing Nevow, one kickass web framework.")
+	>>> site.registerContentType(Article)
+
+We can check what content types are installed on a Site:
+
 	>>> list(site.getContentTypes())
 	[News Article]
+	
+Now we can instantiate an article, and add it to the Site
+
+	>>> articleNevow = Article(store=store, title=u"Introducing Nevow, one kickass web framework.")
+	>>> site.addContent(articleNevow)

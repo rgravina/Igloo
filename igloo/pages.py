@@ -1,3 +1,5 @@
+from axiom.item import Item
+from axiom import dependency
 from nevow import inevow, rend, tags as T, loaders, static, guard, accessors
 from content import Site, ContentType
 from iigloo import IStore
@@ -25,6 +27,15 @@ class IglooPage(rend.Page):
 #workaround for the fact we can't have dots in method names
 setattr(IglooPage, "child_favicon.ico",  static.File('images/favicon.ico'))
 
+class AdminPage(IglooPage):
+    def render_menu(self, ctx, data):
+        return T.ul(id="menu")[
+                 T.li[T.a(href="/admin")["Admin Home"]],
+                 T.li[T.a(href="/admin/general")["Site Details"]],
+                 T.li[T.a(href="/admin/users")["User Administration"]],
+                 T.li[T.a(href=guard.LOGOUT_AVATAR)["Logout"]]]
+
+
 class AdminLoginPage(IglooPage):
     docFactory = IglooPage.loadTemplate('admin.html')
 
@@ -43,9 +54,27 @@ class AdminLoginPage(IglooPage):
 class AdminSettingsPage(IglooPage):
     docFactory = IglooPage.loadTemplate('admin/general.html')
 
-class AdminContentPage(IglooPage):
-    docFactory = IglooPage.loadTemplate('admin/content.html')
+
+class AdminContentListingPage(AdminPage):
+    docFactory = IglooPage.loadTemplate('admin/content-list.html')
+
+    def __init__(self, contentType):
+        self.contentType = contentType
+        
+    def data_list(self, context, data):
+        store = IStore(context)
+        site = store.findFirst(Site)
+        return site.getContentForType(self.contentType)
     
+    def render_item(self, context, item):
+        return context.tag[str(item)]
+
+    def __init__(self, contentType):
+        self.contentType = contentType
+
+class AdminContentPage(AdminPage):
+    docFactory = IglooPage.loadTemplate('admin/content.html')
+        
     def locateChild(self, context, segments):
         # Let parent class have a go first
         child, remainingSegments = rend.Page.locateChild(self, context, segments)
@@ -55,23 +84,17 @@ class AdminContentPage(IglooPage):
         if segments:
             #return the listing for a specific content type
             typeName = segments[0]
-            contentType = store.findFirst(ContentType, ContentType.path == typeName)
-            return ContentListingPage(contentType), []
+            contentType = store.findFirst(ContentType, ContentType.path == unicode(typeName))
+            print contentType
+            return AdminContentListingPage(contentType), []
         #return a listing of content types
         return None, []
 
-class AdminMainPage(IglooPage):
+class AdminMainPage(AdminPage):
     docFactory = IglooPage.loadTemplate('admin/main.html')
     child_general = AdminSettingsPage()
     child_content = AdminContentPage()
     
-    def render_menu(self, ctx, data):
-        return T.ul(id="menu")[
-                     T.li[T.a(href="/admin")["Admin Home"]],
-                     T.li[T.a(href="/admin/general")["Site Details"]],
-                     T.li[T.a(href="/admin/users")["User Administration"]],
-                     T.li[T.a(href=guard.LOGOUT_AVATAR)["Logout"]]]
-
     def logout(self):
         ## self.original is the page's main data -- the object that was passed in to the constructor, and
         ## the object that is initially passed as the 'data' parameter to renderers
@@ -83,4 +106,4 @@ class AdminMainPage(IglooPage):
         return site.getContentTypes()
     
     def render_content(self, context, contentType):
-        return T.a(href="/content/%s/" % contentType.path)[contentType.name]
+        return context.tag[T.a(href="/admin/content/%s/" % contentType.path)[contentType.name]]
