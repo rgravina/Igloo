@@ -1,8 +1,11 @@
 from axiom.item import Item
+from axiom.attributes import AND
 from axiom import dependency
 from nevow import inevow, rend, tags as T, loaders, static, guard, accessors
-from content import Site, ContentType
+from content import Site, Content, ContentType
 from iigloo import IStore, IWebResource
+
+import formal
 
 class IglooPage(rend.Page):
     addSlash = True
@@ -10,6 +13,7 @@ class IglooPage(rend.Page):
     child_styles = static.File('styles')
     child_images = static.File('images')
     child_javascript = static.File('javascript')
+    child_formal_css = formal.defaultCSS
 
     @staticmethod
     def loadTemplate(name):
@@ -54,16 +58,35 @@ class AdminLoginPage(IglooPage):
 class AdminSettingsPage(IglooPage):
     docFactory = IglooPage.loadTemplate('admin/general.html')
 
-
-class AdminContentEditPage(AdminPage):
+class AdminContentEditPage(formal.ResourceMixin, AdminPage):
     docFactory = IglooPage.loadTemplate('admin/content-edit.html')
 
+    def __init__(self, content):
+        self.content = content
+
+    def form_edit(self, ctx):
+        form = formal.Form()
+        form.addField('aString', formal.String())
+        form.addAction(self.submitted)
+        return form
+
+    def submitted(self, ctx, form, data):
+        print form, data
+
 class AdminContentListingPage(AdminPage):
+    """Lists all content of a certain type"""
     docFactory = IglooPage.loadTemplate('admin/content-list.html')
 
     def __init__(self, contentType):
+        print "in AdminContentListingPage constructor"
         self.contentType = contentType
-        
+
+    def locateChild(self, context, segments):
+        store = IStore(context)
+        if segments:
+            content = store.findFirst(Content, AND(Content.type == self.contentType))
+            return AdminContentEditPage(dependency.installedOn(content)), segments[1:]
+
     def data_list(self, context, data):
         store = IStore(context)
         site = store.findFirst(Site)
@@ -71,29 +94,17 @@ class AdminContentListingPage(AdminPage):
     
     def render_item(self, context, item):
         return context.tag[T.a(href="/admin/content/%s/%s/edit" % (item.path, IWebResource(item).path))[item.title]]
-
-    def __init__(self, contentType):
-        self.contentType = contentType
-
-class AdminContentPage(AdminPage):
-    docFactory = IglooPage.loadTemplate('admin/content.html')
         
+class AdminContentPage(AdminPage):        
     def locateChild(self, context, segments):
-        # Let parent class have a go first
-        child, remainingSegments = rend.Page.locateChild(self, context, segments)
-        if child:
-            return child, remainingSegments
         store = IStore(context)
         if segments:
-            #return the listing for a specific content type
             typeName = segments[0]
             contentType = store.findFirst(ContentType, ContentType.path == unicode(typeName))
-            print contentType
-            return AdminContentListingPage(contentType), []
-        #return a listing of content types
-        return None, []
+            return AdminContentListingPage(contentType), segments[1:]
 
 class AdminMainPage(AdminPage):
+    """Main admin page. Lists content types so user can select one to edit"""
     docFactory = IglooPage.loadTemplate('admin/main.html')
     child_general = AdminSettingsPage()
     child_content = AdminContentPage()
@@ -109,4 +120,4 @@ class AdminMainPage(AdminPage):
         return site.getContentTypes()
     
     def render_content(self, context, contentType):
-        return context.tag[T.a(href="/admin/content/%s/" % contentType.path)[contentType.name]]
+        return context.tag[T.a(href="/admin/content/%s" % contentType.path)[contentType.name]]

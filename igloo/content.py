@@ -29,8 +29,13 @@ class WebResource(Item):
     implements(IWebResource)
     typeName = "WebResource"
     path = text()
-    powerupInterfaces = (IWebResource,) 
 
+    installedOn = reference()    
+    def installOn(self, other):
+        assert self.installedOn is None, 'cannot install WebResource on more than one item'
+        self.installedOn = other
+        other.powerUp(self, IWebResource)
+        
 class ContentType(Item):
     """A content type"""
     implements(IContentType)
@@ -39,16 +44,27 @@ class ContentType(Item):
     path = text()
     name = text()
 
+    installedOn = reference()    
+    def installOn(self, other):
+        assert self.installedOn is None, 'cannot install ContentType on more than one item'
+        self.installedOn = other
+        other.powerUp(self, IContentType)
+
     def __repr__(self):
         return self.name
 
-    
 class Content(Item):
     """A content powerup for axiom Items"""
     implements(IContent)
     powerupInterfaces = (IContent,) 
     typeName = "Content"
     type = reference(reftype=ContentType)
+
+    installedOn = reference()    
+    def installOn(self, other):
+        assert self.installedOn is None, 'cannot install Content on more than one item'
+        self.installedOn = other
+        other.powerUp(self, IContent)
         
 class Tag(Item):
     """A tag"""

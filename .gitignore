@@ -1,0 +1,8 @@
+# Mac OS X dir metadata
+.DS_Store
+
+# Python bytecode
+*.pyc
+
+# Trial test runner temp files
+_trial_temp

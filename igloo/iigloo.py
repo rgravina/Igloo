@@ -17,11 +17,13 @@ class IContentType(Interface):
     name = Attribute("""Name for the content type""")
     path = Attribute("""Path at which this content type will be listed in the admin""")
 
+    
+class IForm(Interface):
+    """Creates an edit form"""
+    def form(self):
+        """Returns a edit form for this content type"""
+
 class IContent(Interface):
     """Tells the admin that a particular Item is content"""
     type = Attribute("""Reference to ContentType object""")
 
-#    def form(self):
-#        """Returns a edit form for this content type"""
-#    def update(self):
-#        """Updates this content type"""
